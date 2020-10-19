@@ -3,7 +3,10 @@ from torchio.datasets import FPG
 import SimpleITK as sitk
 from resector.parcellation import get_resectable_hemisphere_mask
 
+# fpg data
 FPG_data = FPG()
+
+# resector
 parcellation_path = '/tmp/noise/002_S_0295_I118671_t1_pre_NeuroMorph_Parcellation.nii.gz'
 hemisphere = 'right'
 
