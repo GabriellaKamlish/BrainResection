@@ -4,29 +4,44 @@ from resector.parcellation import get_resectable_hemisphere_mask
 from torchio.datasets import FPG
 import nibabel as nib
 import matplotlib.pyplot as plt
-from PIL import Image, ImageDraw
+from PIL import Image
 import numpy as np
 
 # fpg data
-FPG_data = FPG()
+
+# FPG_data = FPG()
 # FPG.plot(FPG_data)
 
 # generate resect files using
 # resect /Users/gabriellakamlish/.cache/torchio/fpg/t1.nii.gz /Users/gabriellakamlish/.cache/torchio/fpg/t1_seg_gif.nii.gz t1_resected.nii.gz t1_resection_label.nii.gz
 
 image = np.zeros((256, 256), np.uint8)
-image[50:70, 120:136] = 255
+image[120:200, 120:136] = 255
 Image.fromarray(image).save('square.png')
 
 im = Image.open('square.png')
 isize = im.size
 
-result = 'Bottom'
-for x in range(isize[0]//2):
-    for y in range(isize[1]):
-        if image[x,y] == 255:
-            result = 'Top'
-        
+# Top = 0
+# Bottom = 0
+# result = 'Bottom'
+
+# for x in range(isize[0]):
+#     for y in range(isize[1]):
+#         if image[x,y] == 255 and (x<(isize[0]//2)):
+#             Top +=1
+#         elif image[x,y] == 255 and (x>(isize[0]//2)):
+#             Bottom +=1
+
+# if Top > Bottom:
+#     result ='Top'
+
+result = 'Top'
+white = np.where(image == 255)
+x_coords = white[0]
+if (x_coords[x_coords>128]).size > (x_coords.size/2):
+    result = 'Bottom'
+
 print(result)
         
 
@@ -41,20 +56,3 @@ print(result)
 # ax1.set_title('Image')
 # ax2.imshow(test_mask)
 # ax2.set_title('Mask')
-
-
-
-# # path to brain parcellation data from fpg
-# parcellation_path = '/tmp/noise/002_S_0295_I118671_t1_pre_NeuroMorph_Parcellation.nii.gz'
-
-# # labelling using resector
-# hemisphere = 'right'
-
-# mask = get_resectable_hemisphere_mask(
-#     parcellation_path,
-#     hemisphere,
-# )
-
-# sitk.WriteImage(mask, f'/tmp/noise/002_S_0295_I118671_t1_pre_resectable_{hemisphere}_seg.nii.gz')
-
-# resect /Users/gabriellakamlish/.cache/torchio/fpg/t1.nii.gz /Users/gabriellakamlish/.cache/torchio/fpg/t1_seg_gif.nii.gz t1_resected.nii.gz t1_resection_label.nii.gz
