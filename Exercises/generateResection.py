@@ -3,7 +3,15 @@ from PIL import Image
 
 def make_2d_training_instance(mri_path, segmentation_path):
 
-    im = Image.open(segmentation_path)
+# find the slice of the png path that contains greatest 2D slice of resection
+# find slice from segmentation path that has the most amount of white in the image (biggest part of resection)
+# index this slice number to mri path and this will be the slice_png
+
+# to find the hemisphere use the slice_png and run the following to determine right or left
+    
+    slice_png_path = None
+
+    im = Image.open(slice_png_path)
     xsize, ysize = im.size
 
     hemisphere = 'Left'
@@ -11,7 +19,5 @@ def make_2d_training_instance(mri_path, segmentation_path):
     if (cols[cols>(ysize/2)]).size > (cols.size/2):
         hemisphere = 'Right'
 
-
-    slice_png_path = None
 
     return slice_png_path, hemisphere
