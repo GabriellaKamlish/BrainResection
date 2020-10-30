@@ -6,12 +6,11 @@ image[120:200, 120:136] = 255
 Image.fromarray(image).save('square.png')
 
 im = Image.open('square.png')
-isize = im.size
+x,y = im.size
 
 result = 'Top'
-white = np.where(image == 255)
-x_coords = white[0]
-if (x_coords[x_coords>128]).size > (x_coords.size/2):
+rows, cols = np.where(image == 255)
+if (rows[rows>128]).size > (rows.size/2):
     result = 'Bottom'
 
 print(result)

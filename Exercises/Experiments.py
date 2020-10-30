@@ -26,3 +26,4 @@ import numpy as np
 # ax1.set_title('Image')
 # ax2.imshow(test_mask)
 # ax2.set_title('Mask')
+
