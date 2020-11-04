@@ -11,30 +11,36 @@ def make_2d_training_instance(mri_path, segmentation_path):
 # find slice from segmentation path that has the most amount of white in the image (biggest part of resection)
 # index this slice number to mri path and this will be the slice_png
 
-    image = tio.ScalarImage(segmentation_path)
-    image.load()
+    label = tio.ScalarImage(segmentation_path)
+    label.load()
+    scan = tio.ScalarImage(mri_path)
+    scan.load()
 
-    transform = tio.ToCanonical()
-    ras_sample = transform(image)
-    x,y,z = image.shape[1:4]
-    
-    label = nib.load(segmentation_path)
-    data = label.get_fdata()
-    scan = nib.load(mri_path)
-    data2 = scan.get_fdata()        
-    
+    if label.orientation != ('R','A','S') or scan.orientation != ('R','A','S'):
+        transform = tio.ToCanonical()
+        label = transform(label)
+        scan = transform(scan)
+
+    label_data = label.data
+    scan_data = scan.data
+
+    data = label_data.numpy()[:, :, :, :]
+    data2 = scan_data.numpy()[:,:,:,:]
+
+    x,y,z = data.shape[1:4]
+
     max_White = 0
     for k in range(z):
-        imageSlice = data[:,:,k]
+        imageSlice = data[0,:,:,k]
         white = np.count_nonzero(imageSlice)
         if white > max_White:
             max_White = white
             best_k = k
     
 
-    largestResectionAreaLabel = np.rot90(data[:,:, best_k])
-    largestResectionAreaScan = np.rot90(data2[:,:, best_k])
-
+    largestResectionAreaLabel = np.rot90(data[0,:,:, best_k])
+    largestResectionAreaScan = np.rot90(data2[0,:,:, best_k])
+    
     # Initialize the subplot panels side by side
     fig, ax = plt.subplots(nrows=2, ncols=1)
 
@@ -45,7 +51,6 @@ def make_2d_training_instance(mri_path, segmentation_path):
     ax[1].set_title('Largest area of resection visualised from scan (transverse plane)')
 
     plt.show()
-
     
 # to find the hemisphere use the slice_png and run the following to determine right or left
     
@@ -64,7 +69,3 @@ def make_2d_training_instance(mri_path, segmentation_path):
 
 
 make_2d_training_instance('/Users/gabriellakamlish/BrainResection/Exercises/t1_resected.nii.gz', '/Users/gabriellakamlish/BrainResection/Exercises/t1_resection_label.nii.gz')
-
-
-
-
