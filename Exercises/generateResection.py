@@ -1,7 +1,9 @@
 import numpy as np
-# from PIL import Image
 import nibabel as nib
-import numpy as np
+import torchio as tio
+from torchio import transforms
+from skimage import io
+import matplotlib.pyplot as plt
 
 def make_2d_training_instance(mri_path, segmentation_path):
 
@@ -10,12 +12,34 @@ def make_2d_training_instance(mri_path, segmentation_path):
 # find slice from segmentation path that has the most amount of white in the image (biggest part of resection)
 # index this slice number to mri path and this will be the slice_png
 
+    image = tio.ScalarImage(segmentation_path)
+    image.load()
+    x,y,z = image.shape[1:4]
+
     label = nib.load(segmentation_path)
     data = label.get_fdata()
-    x,y,z = data.shape
-    print(x,y,z)
+    scan = nib.load(mri_path)
+    data2 = scan.get_fdata()
 
-# orientation of the image
+    max_White = 0
+    for k in range(z):
+        imageSlice = data[:,:,k]
+        white = np.count_nonzero(imageSlice)
+        if white > max_White:
+            max_White = white
+            best_k = k
+    
+    # Initialize the subplot panels side by side
+    fig, ax = plt.subplots(nrows=2, ncols=1)
+
+    # Show an image in each subplot
+    ax[0].imshow(data[:,:, best_k])
+    ax[0].set_title('Largest area of resection visualised from label (transverse plane)')
+    ax[1].imshow(data2[:,:, best_k])
+    ax[1].set_title('Largest area of resection visualised from scan (transverse plane)')
+
+    plt.show()
+
 
 # to find the hemisphere use the slice_png and run the following to determine right or left
     
@@ -33,4 +57,8 @@ def make_2d_training_instance(mri_path, segmentation_path):
     # return slice_png_path, hemisphere
 
 
-make_2d_training_instance('t1_resected.nii.gz', 't1_resection_label.nii.gz')
+make_2d_training_instance('/Users/gabriellakamlish/BrainResection/Exercises/t1_resected.nii.gz', '/Users/gabriellakamlish/BrainResection/Exercises/t1_resection_label.nii.gz')
+
+
+
+
