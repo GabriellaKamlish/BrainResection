@@ -13,6 +13,9 @@ def make_2d_training_instance(mri_path, segmentation_path):
 
     image = tio.ScalarImage(segmentation_path)
     image.load()
+    if image.orientation != ('R','A','S'):
+        raise Exception('Image orientation is not RAS')
+
     x,y,z = image.shape[1:4]
 
     label = nib.load(segmentation_path)
