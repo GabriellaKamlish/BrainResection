@@ -13,16 +13,16 @@ def make_2d_training_instance(mri_path, segmentation_path):
 
     image = tio.ScalarImage(segmentation_path)
     image.load()
-    if image.orientation != ('R','A','S'):
-        raise Exception('Image orientation is not RAS')
 
+    transform = tio.ToCanonical()
+    ras_sample = transform(image)
     x,y,z = image.shape[1:4]
-
+    
     label = nib.load(segmentation_path)
     data = label.get_fdata()
     scan = nib.load(mri_path)
-    data2 = scan.get_fdata()
-
+    data2 = scan.get_fdata()        
+    
     max_White = 0
     for k in range(z):
         imageSlice = data[:,:,k]
@@ -47,7 +47,6 @@ def make_2d_training_instance(mri_path, segmentation_path):
     plt.show()
 
     
-
 # to find the hemisphere use the slice_png and run the following to determine right or left
     
     slice_png_path = largestResectionAreaLabel
