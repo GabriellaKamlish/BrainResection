@@ -1,9 +1,8 @@
 import numpy as np
 import nibabel as nib
 import torchio as tio
-from torchio import transforms
-from skimage import io
 import matplotlib.pyplot as plt
+from PIL import Image
 
 def make_2d_training_instance(mri_path, segmentation_path):
 
@@ -29,13 +28,17 @@ def make_2d_training_instance(mri_path, segmentation_path):
             max_White = white
             best_k = k
     
+
+    largestResectionAreaLabel = data[:,:, best_k]
+    largestResectionAreaScan = data2[:,:, best_k]
+
     # Initialize the subplot panels side by side
     fig, ax = plt.subplots(nrows=2, ncols=1)
 
     # Show an image in each subplot
-    ax[0].imshow(data[:,:, best_k])
+    ax[0].imshow(largestResectionAreaLabel)
     ax[0].set_title('Largest area of resection visualised from label (transverse plane)')
-    ax[1].imshow(data2[:,:, best_k])
+    ax[1].imshow(largestResectionAreaScan)
     ax[1].set_title('Largest area of resection visualised from scan (transverse plane)')
 
     plt.show()
@@ -43,17 +46,17 @@ def make_2d_training_instance(mri_path, segmentation_path):
 
 # to find the hemisphere use the slice_png and run the following to determine right or left
     
-    # slice_png_path = None
+    slice_png_path = largestResectionAreaLabel
 
     # im = Image.open(slice_png_path)
-    # xsize, ysize = im.size
+    # xsize, ysize = slice_png_path.size
 
-    # hemisphere = 'Left'
-    # rows, cols = np.where(im == 255)
-    # if (cols[cols>(ysize/2)]).size > (cols.size/2):
-    #     hemisphere = 'Right'
+    hemisphere = 'Right'
+    rows, cols = np.where(slice_png_path == 255)
+    if (rows[rows>128]).size > (rows.size/2):
+        hemisphere = 'Left'
 
-
+    print(hemisphere)
     # return slice_png_path, hemisphere
 
 
