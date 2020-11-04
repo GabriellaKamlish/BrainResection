@@ -29,8 +29,8 @@ def make_2d_training_instance(mri_path, segmentation_path):
             best_k = k
     
 
-    largestResectionAreaLabel = data[:,:, best_k]
-    largestResectionAreaScan = data2[:,:, best_k]
+    largestResectionAreaLabel = np.rot90(data[:,:, best_k])
+    largestResectionAreaScan = np.rot90(data2[:,:, best_k])
 
     # Initialize the subplot panels side by side
     fig, ax = plt.subplots(nrows=2, ncols=1)
@@ -43,6 +43,7 @@ def make_2d_training_instance(mri_path, segmentation_path):
 
     plt.show()
 
+    
 
 # to find the hemisphere use the slice_png and run the following to determine right or left
     
@@ -51,12 +52,12 @@ def make_2d_training_instance(mri_path, segmentation_path):
     # im = Image.open(slice_png_path)
     # xsize, ysize = slice_png_path.size
 
-    hemisphere = 'Right'
+    hemisphere = 'right'
     rows, cols = np.where(slice_png_path == 255)
-    if (rows[rows>128]).size > (rows.size/2):
-        hemisphere = 'Left'
+    if (cols[cols>128]).size > (cols.size/2):
+        hemisphere = 'left'
 
-    print(hemisphere)
+    print('The resection is mainly in the {} hemisphere'.format(hemisphere))
     # return slice_png_path, hemisphere
 
 
