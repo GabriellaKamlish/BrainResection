@@ -41,6 +41,13 @@ def make_2d_training_instance(mri_path, segmentation_path):
     largestResectionAreaLabel = np.rot90(data[0,:,:, best_k])
     largestResectionAreaScan = np.rot90(data2[0,:,:, best_k])
     
+    slice_png = Image.fromarray(largestResectionAreaScan)
+    if slice_png.mode != 'RGB':
+        slice_png = slice_png.convert('RGB')
+
+    slice_png_path = '/Users/gabriellakamlish/BrainResection/Exercises/largestResectionAreaScan.png'
+    slice_png.save(slice_png_path)
+    
     # Initialize the subplot panels side by side
     fig, ax = plt.subplots(nrows=2, ncols=1)
 
@@ -53,19 +60,14 @@ def make_2d_training_instance(mri_path, segmentation_path):
     plt.show()
     
 # to find the hemisphere use the slice_png and run the following to determine right or left
-    
-    slice_png_path = largestResectionAreaLabel
-
-    # im = Image.open(slice_png_path)
-    # xsize, ysize = slice_png_path.size
 
     hemisphere = 'right'
-    rows, cols = np.where(slice_png_path == 255)
+    rows, cols = np.where(largestResectionAreaLabel == 255)
     if (cols[cols>128]).size > (cols.size/2):
         hemisphere = 'left'
 
-    print('The resection is mainly in the {} hemisphere'.format(hemisphere))
-    # return slice_png_path, hemisphere
+    print('The resection is located in the {} hemisphere of the brain'.format(hemisphere))
+    return slice_png_path, hemisphere
 
 
 make_2d_training_instance('/Users/gabriellakamlish/BrainResection/Exercises/t1_resected.nii.gz', '/Users/gabriellakamlish/BrainResection/Exercises/t1_resection_label.nii.gz')
