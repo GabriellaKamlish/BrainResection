@@ -12,20 +12,19 @@ def make_2d_training_instance(mri_path, segmentation_path):
 # index this slice number to mri path and this will be the slice_png
 
     label = tio.ScalarImage(segmentation_path)
-    label.load()
     scan = tio.ScalarImage(mri_path)
-    scan.load()
+    transform = tio.ToCanonical()
 
-    if label.orientation != ('R','A','S') or scan.orientation != ('R','A','S'):
-        transform = tio.ToCanonical()
+    if label.orientation != ('R','A','S'):
         label = transform(label)
+    elif scan.orientation != ('R','A','S'):
         scan = transform(scan)
 
     label_data = label.data
     scan_data = scan.data
 
-    data = label_data.numpy()[:, :, :, :]
-    data2 = scan_data.numpy()[:,:,:,:]
+    data = label_data.numpy()
+    data2 = scan_data.numpy()
 
     x,y,z = data.shape[1:4]
 
@@ -61,13 +60,17 @@ def make_2d_training_instance(mri_path, segmentation_path):
     
 # to find the hemisphere use the slice_png and run the following to determine right or left
 
-    hemisphere = 'right'
-    rows, cols = np.where(largestResectionAreaLabel == 255)
-    if (cols[cols>128]).size > (cols.size/2):
-        hemisphere = 'left'
+    hemisphere = 'left'
+    rows, cols = np.where(largestResectionAreaLabel != 0)
+    if (cols[cols>(largestResectionAreaLabel.shape[1]/2)]).size > (cols.size/2):
+        hemisphere = 'right'
 
     print('The resection is located in the {} hemisphere of the brain'.format(hemisphere))
     return slice_png_path, hemisphere
 
-
-make_2d_training_instance('/Users/gabriellakamlish/BrainResection/Exercises/t1_resected.nii.gz', '/Users/gabriellakamlish/BrainResection/Exercises/t1_resection_label.nii.gz')
+if __name__ == "__main__": 
+    mri_path = input('Path to the mri: ')
+    segmentation_path = input('Path to the label: ')
+#   /Users/gabriellakamlish/BrainResection/Exercises/t1_resected.nii.gz
+#   /Users/gabriellakamlish/BrainResection/Exercises/t1_resection_label.nii.gz  
+    make_2d_training_instance(mri_path, segmentation_path)
