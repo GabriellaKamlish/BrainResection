@@ -3,6 +3,7 @@ import nibabel as nib
 import torchio as tio
 import matplotlib.pyplot as plt
 from PIL import Image
+import sys 
 
 def make_2d_training_instance(mri_path, segmentation_path):
 
@@ -69,8 +70,8 @@ def make_2d_training_instance(mri_path, segmentation_path):
     return slice_png_path, hemisphere
 
 if __name__ == "__main__": 
-    mri_path = input('Path to the mri: ')
-    segmentation_path = input('Path to the label: ')
+    mri_path = sys.argv[1]
+    segmentation_path = sys.argv[2]
 #   /Users/gabriellakamlish/BrainResection/Exercises/t1_resected.nii.gz
 #   /Users/gabriellakamlish/BrainResection/Exercises/t1_resection_label.nii.gz  
     make_2d_training_instance(mri_path, segmentation_path)
