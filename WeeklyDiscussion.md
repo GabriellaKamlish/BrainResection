@@ -11,5 +11,7 @@
 
 ### Tasks:
 - Use highresnet and UCL GIF algorithm to parcellate both t1, and t1_resected images in order to visualise current issues with the segmentation process
-- Begin PyTorch tutorial 
+- Slicer Tutorials
+- PyTorch tutorial:
+- CIFAR10 Neural net, Linear Regression, Logistic Regression MNIST, 
 - Use the dataset provided on the hemisphere identifier I created
