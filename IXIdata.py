@@ -82,19 +82,24 @@ def generate_resection(segmentation_path, T1_path):
                 img_bwa = cv2.bitwise_and(resection_image,label)
                 # apply resection to T1
                 resec_loc = np.nonzero(img_bwa)
-                T1_slice[resec_loc[0],resec_loc[1]]=0
+                T1_resected = T1_slice.copy()
+                T1_resected[resec_loc[0],resec_loc[1]]=0
 
                 # save new label and t1
                 if it == 1:
                     plt.imsave('TEST/Labels/frontal_label_slice_{}.png'.format(i), img_bwa)
+                    plt.imsave('TEST/T1_resected/frontal_T1_resected_slice_{}.png'.format(i), T1_resected)
                     plt.imsave('TEST/T1/frontal_T1_slice_{}.png'.format(i), T1_slice)
+
                 elif it == 2:
                     plt.imsave('TEST/Labels/transverse_label_slice_{}.png'.format(i), img_bwa)
+                    plt.imsave('TEST/T1_resected/transverse_T1_resected_slice_{}.png'.format(i), T1_resected)
                     plt.imsave('TEST/T1/transverse_T1_slice_{}.png'.format(i), T1_slice)
+               
                 else:
                     plt.imsave('TEST/Labels/sagittal_label_slice_{}.png'.format(i), img_bwa)
+                    plt.imsave('TEST/T1_resected/sagittal_T1_resected_slice_{}.png'.format(i), T1_resected)
                     plt.imsave('TEST/T1/sagittal_T1_slice_{}.png'.format(i), T1_slice)
-
             else:
                 continue
 
