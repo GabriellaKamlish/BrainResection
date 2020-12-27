@@ -13,4 +13,3 @@ Brain_seg = ['IXI002-Guys-0828-T1_NeuroMorph_Parcellation_gif_brain_seg.nii.gz',
 
 print(len(T1))
 print(len(Brain_seg))
-
