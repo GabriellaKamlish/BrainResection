@@ -8,7 +8,7 @@ os.environ['KMP_DUPLICATE_LIB_OK']='True'
 # convolution
 def conv_3x3(in_c,out_c):
     conv = nn.Sequential(
-        nn.Conv2d(in_c,out_c, kernel_size=3),
+        nn.Conv2d(in_c,out_c, kernel_size=3, padding=1),
         nn.ReLU(inplace=True),
     )
     return conv
@@ -22,7 +22,7 @@ def crop_img(tensor, target_tensor):
         delta = delta//2
         return tensor[:,:,delta:tensor_size-delta, delta:tensor_size-delta]
     else:
-        delta = (delta-1)//2
+        delta = (delta)//2
         return tensor[:,:,delta:tensor_size-delta-1, delta:tensor_size-delta-1]
 
 class UNet(nn.Module):
@@ -39,7 +39,8 @@ class UNet(nn.Module):
             in_channels=512,
             out_channels=256,
             kernel_size = 3,
-            stride = 2
+            stride = 2,
+            padding =1
         )
 
         self.up_conv_1 = conv_3x3(512,256)
@@ -103,9 +104,11 @@ class UNet(nn.Module):
         # decoder
         x = self.up_trans_1(x9)
         y = crop_img(x7,x)
+        # print(x7.size())
         print(x.size())
         print(y.size())
         x = self.up_conv_1(torch.cat([x,y],1))
+        # print(x.size())
         
         x = self.up_trans_2(x)
         y = crop_img(x5,x)
@@ -126,7 +129,7 @@ class UNet(nn.Module):
         x = self.up_conv_4(torch.cat([x,y],1)) 
         
         x = self.out(x)
-
+        print(x.size())
         return x
 
 
