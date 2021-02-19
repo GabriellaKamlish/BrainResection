@@ -56,7 +56,7 @@ class ImageAugmentor:
             masked_image = self.__createMask(image_copy)
 
             # normalise
-            X_batch[i,] = masked_image/255
+            X_batch[i] = masked_image/255
             y_batch[i] = image/255
         
         return X_batch, y_batch
@@ -78,16 +78,12 @@ class ImageAugmentor:
 
 if __name__ == "__main__":
     augmented_brains = ImageAugmentor('/Users/gabriellakamlish/BrainResection/IXI/T1/Slices', batch_size=10, shuffle= True)
-    print(len(augmented_brains))
-    a_b = augmented_brains[5]
-    print(a_b[0][0].shape)
-    
 
     sample_masks, sample_labels = augmented_brains[1]
-    # sample_masks, sample_labels = traingen[sample_idx]
     sample_images = [None]*(len(sample_masks)+len(sample_labels))
     sample_images[::2] = sample_labels
     sample_images[1::2] = sample_masks
+
 
     fig = plt.figure(figsize=(16., 8.))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
@@ -96,6 +92,7 @@ if __name__ == "__main__":
                     )
 
     for ax, image in zip(grid, sample_images):
-        ax.imshow(image)
+        ax.imshow(image, vmin=0)
 
     plt.show()
+
