@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     fig = plt.figure(figsize=(16., 8.))
     grid = ImageGrid(fig, 111,  # similar to subplot(111)
-                    nrows_ncols=(4, 5),  # creates 2x2 grid of axes
+                    nrows_ncols=(5, 4),  # creates 5x4 grid of axes
                     axes_pad=0.3,  # pad between axes in inch.
                     )
 

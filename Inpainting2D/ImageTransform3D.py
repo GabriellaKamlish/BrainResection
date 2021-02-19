@@ -21,9 +21,11 @@ class Image3DDataset(Dataset):
         self.T1_path = T1_path
         self.T1_names = [f for f in listdir(T1_path) if isfile(join(T1_path, f))]
         self.T1_names.remove('.DS_Store')
+        self.T1_names.sort()
         self.transform = transform
-        self.slices_path = T1_path + '/Slices'
+        self.slices_path = '/Slices'
         self.crop = transforms.CenterCrop(181)
+        self.colin = tio.datasets.Colin27(version=1998) 
 
     def __len__(self):
         return len(self.T1_names)
@@ -36,10 +38,9 @@ class Image3DDataset(Dataset):
         image = tio.ScalarImage(img_name)
 
         if self.transform:
-            colin = tio.datasets.Colin27(version=1998) 
-            transform = tio.Resample(colin.t1.path)
+            transform = tio.Resample(self.colin.t1.path)
             image = transform(image)
-
+    
         return image
 
     def center_crop(self, image):
@@ -53,29 +54,43 @@ class Image3DDataset(Dataset):
         if not os.path.exists(path):
             os.mkdir(path)
 
+        colin_seg = self.colin.brain.path
+        colin_image = tio.ScalarImage(colin_seg)
+        colin_image = colin_image.data   
+
         planes = image.shape[1:]
         it=0
         for plane in planes:
             it+=1
+            count = 0
             for i in range(plane):
                 if it == 1:
                     axis = '-sagg'
                     T1_slice = image.data[:,i,:,:]
                     T1_slice = self.center_crop(T1_slice)
-
+                    colin_slice = colin_image[:,i,:,:]
+                    colin_slice = self.center_crop(colin_slice)
                 elif it == 2:
                     axis = '-front'
                     T1_slice = image.data[:,:,i,:]
                     T1_slice = self.center_crop(T1_slice)
+                    colin_slice = colin_image[:,:,i,:]
+                    colin_slice = self.center_crop(colin_slice)
                 else:
                     axis = '-trans'
                     T1_slice = image.data[:,:,:,i]
                     T1_slice = self.center_crop(T1_slice)
+                    colin_slice = colin_image[:,:,:,i]
+                    colin_slice = self.center_crop(colin_slice)
 
-                i_str = '-'+str(i)
-                T1_slice = np.squeeze(T1_slice)
-                plt.imsave('{}/Slices/{}.png'.format(dataset_path,image_name[:-7]+axis+i_str), T1_slice)
-       
+                # finds location of non zero pixels
+                label_loc = colin_slice[colin_slice!=0]
+                if label_loc.numel() != 0:                   
+                    T1_slice = np.squeeze(T1_slice)
+                    count+=1
+                    count_str = '-'+str(count)
+                    plt.imsave('{}/Slices/{}.png'.format(dataset_path,image_name[:-7]+axis+count_str), T1_slice)
+        
 
 if __name__ == "__main__":
     path = '/Users/gabriellakamlish/BrainResection/IXI/T1'
