@@ -53,17 +53,17 @@ if __name__ == "__main__":
     print(len(IXI_transform))
     print(IXI_transform[6])
 
-    colin = tio.datasets.Colin27(version=1998) 
-    colin_brain = colin.brain.data
-    colin_brain= colin_brain.permute(1,2,3,0)
-    x = colin_brain[16,:,:,:]
-    print(colin_brain.shape)
+    # colin = tio.datasets.Colin27(version=1998) 
+    # colin_brain = colin.brain.data
+    # colin_brain= colin_brain.permute(1,2,3,0)
+    # x = colin_brain[16,:,:,:]
+    # print(colin_brain.shape)
 
-    plt.imshow(x)
-    plt.show()
+    # plt.imshow(x)
+    # plt.show()
 
-    z = torch.nonzero(colin_brain)
-    print(z[:,0])
+    # z = torch.nonzero(colin_brain)
+    # print(z[:,0])
 
 
     x = IXI_transform[1].data
