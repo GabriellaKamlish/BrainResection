@@ -5,6 +5,9 @@ import torch
 import numpy as np
 import torchio as tio
 
+import matplotlib.pyplot as plt
+import nibabel as nib
+
 class IXITransform:
     """IXI dataset."""
 
@@ -46,7 +49,30 @@ class IXITransform:
 if __name__ == "__main__":
     T1_path = '/Users/gabriellakamlish/BrainResection/IXI/T1'
     transform_path = '/Users/gabriellakamlish/BrainResection/IXI/to_mni'
-    brain_dataset = IXITransform(T1_path,transform_path)
-    print(len(brain_dataset))
-    print(brain_dataset[1])
+    IXI_transform = IXITransform(T1_path,transform_path)
+    print(len(IXI_transform))
+    print(IXI_transform[6])
+
+    colin = tio.datasets.Colin27(version=1998) 
+    colin_brain = colin.brain.data
+    colin_brain= colin_brain.permute(1,2,3,0)
+    x = colin_brain[16,:,:,:]
+    print(colin_brain.shape)
+
+    plt.imshow(x)
+    plt.show()
+
+    z = torch.nonzero(colin_brain)
+    print(z[:,0])
+
+
+    x = IXI_transform[1].data
+    x = x.permute(1,2,3,0)
+
+    x = x.numpy()
+    print(x.shape)
+    ni_img = nib.Nifti1Image(x, np.eye(4))
+
+    nib.save(ni_img, 'output.nii.gz')
+
 
