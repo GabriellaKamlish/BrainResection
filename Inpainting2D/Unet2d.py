@@ -29,7 +29,7 @@ class UNet(nn.Module):
     def __init__(self):
         super(UNet,self).__init__()
         self.max_pool_2x2 = nn.MaxPool2d(kernel_size=2, stride=2)
-        self.down_conv_1 = conv_3x3(3,32)
+        self.down_conv_1 = conv_3x3(1,32)
         self.down_conv_2 = conv_3x3(32,64)
         self.down_conv_3 = conv_3x3(64,128)
         self.down_conv_4 = conv_3x3(128,256)
@@ -51,7 +51,7 @@ class UNet(nn.Module):
 
         self.out = nn.Conv2d(
             in_channels = 96,
-            out_channels = 3,
+            out_channels = 1,
             kernel_size = 1
         )
 
@@ -59,52 +59,57 @@ class UNet(nn.Module):
         # bs, c, h, w
         # encoder
         x1 = self.down_conv_1(image)
-        print(x1.size())
+        # print(x1.size())
         x2 = self.max_pool_2x2(x1)
-        print(x2.size())
+        # print(x2.size())
         x3 = self.down_conv_2(x2)
-        print(x3.size())
+        # print(x3.size())
         x4 = self.max_pool_2x2(x3)
-        print(x4.size())
+        # print(x4.size())
         x5 = self.down_conv_3(x4)
-        print(x5.size())
+        # print(x5.size())
         x6 = self.max_pool_2x2(x5)
-        print(x6.size())
+        # print(x6.size())
         x7 = self.down_conv_4(x6)
-        print(x7.size())
+        # print(x7.size())
         x8 = self.max_pool_2x2(x7)
-        print(x8.size())
+        # print(x8.size())
         x9 = self.down_conv_5(x8)
-        print(x9.size())
+        # print(x9.size())
 
         # decoder
 
         x = self.upsample_1(x9)
+        pad = nn.ZeroPad2d((1,0,1,0))
+        x = pad(x)
         y = torch.cat([x,x7],1)
         x = self.up_conv_1(y)
-        print(y.size())
+        # print(y.size())
 
         x = self.upsample_1(x)
         y = torch.cat([x,x5],1)
         x = self.up_conv_2(y)
-        print(y.size())
+        # print(y.size())
 
         x = self.upsample_1(x)
         y = torch.cat([x,x3],1)
         x = self.up_conv_3(y)
-        print(y.size())
+        # print(y.size())
 
         x = self.upsample_1(x)
+        pad = nn.ZeroPad2d((1,0,1,0))
+        x = pad(x)
         y = torch.cat([x,x1],1)
         x = self.up_conv_4(y)
-        print(y.size()) 
+        # print(y.size()) 
         
         x = self.out(x)
-        print(x.size())
+        # print(x.size())
         return x
 
 
 if __name__ == "__main__":
-    image = torch.rand((1,3,256,256))
+    image = torch.rand((1,1,217,217))
     model = UNet()
-    print(model(image))
+    model(image)
+    # print(model(image))
