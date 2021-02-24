@@ -7,6 +7,7 @@ import torchio as tio
 
 import matplotlib.pyplot as plt
 import nibabel as nib
+import smtplib, ssl
 
 class IXITransform:
     """IXI dataset."""
@@ -33,15 +34,14 @@ class IXITransform:
             idx = idx.tolist()
 
         img_name = os.path.join(self.T1_path, self.T1_names[idx])
-        image = tio.ScalarImage(img_name)
 
         matrix_path = os.path.join(self.transform_path, self.transform_names[idx])
 
         affine_matrix = tio.io.read_matrix(matrix_path)
-        image_mni = tio.ScalarImage(tensor=image.data, to_mni=affine_matrix)
-
+        image = tio.ScalarImage(img_name, to_mni=affine_matrix)
+        
         transform = tio.Resample(self.colin.t1.path, pre_affine_name='to_mni')
-        transformed = transform(image_mni)
+        transformed = transform(image)
 
         return transformed
 
@@ -52,27 +52,23 @@ if __name__ == "__main__":
     IXI_transform = IXITransform(T1_path,transform_path)
     print(len(IXI_transform))
     print(IXI_transform[6])
+    print(IXI_transform.T1_names[6])
+ 
 
-    # colin = tio.datasets.Colin27(version=1998) 
-    # colin_brain = colin.brain.data
-    # colin_brain= colin_brain.permute(1,2,3,0)
-    # x = colin_brain[16,:,:,:]
-    # print(colin_brain.shape)
+    for i in range(len(IXI_transform)):
+        x = IXI_transform[i].data
+    #     name = IXI_transform.T1_names[i]
+    #     name_ok = name[:-7]
+    #     name_ok = name_ok + '-MNI-space.nii.gz'
+    #     path = '/Users/gabriellakamlish/BrainResection/IXI/IXI_MNI/'+name_ok
+    #     x = x.permute(1,2,3,0)
 
-    # plt.imshow(x)
-    # plt.show()
+    #     x = x.numpy()
+    #     ni_img = nib.Nifti1Image(x, np.eye(4))
 
-    # z = torch.nonzero(colin_brain)
-    # print(z[:,0])
+    #     nib.save(ni_img, path)
 
 
-    x = IXI_transform[1].data
-    x = x.permute(1,2,3,0)
 
-    x = x.numpy()
-    print(x.shape)
-    ni_img = nib.Nifti1Image(x, np.eye(4))
-
-    nib.save(ni_img, 'output.nii.gz')
 
 
