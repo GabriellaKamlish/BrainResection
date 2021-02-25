@@ -18,7 +18,7 @@ class UNetDataset(Dataset):
         self.MNI_vol_names.sort()    
         self.colin = tio.datasets.Colin27(version=1998) 
         self.crop_or_pad = tio.CropOrPad(
-            (217,217,217)
+            (217,217,1)
         )
 
     def __len__(self):
@@ -29,13 +29,13 @@ class UNetDataset(Dataset):
         img_name = os.path.join(self.MNI_vol_dir, self.MNI_vol_names[idx])
 
         img = nib.load(img_name)
-        img = torch.from_numpy(img.dataobj[:,:,:,:])
 
-        img = img.permute(3,0,1,2)
         slice_of_vol, col_slice = self.get_random_slice(img)
 
-        label = slice_of_vol
-        mask = self.create_mask(slice_of_vol.clone().detach(), col_slice)
+        b, i, j, c = slice_of_vol.shape
+        col_slice = col_slice.reshape(c, i,j)
+        label = slice_of_vol.reshape(c, i,j)
+        mask = self.create_mask(label.clone().detach(), col_slice)
 
         # normalise
         X = mask//255
@@ -45,8 +45,6 @@ class UNetDataset(Dataset):
     def get_random_slice(self, vol):
         random_axis = random.randint(1,3)
         colin_brain = self.colin.brain
-        colin_brain = self.crop_or_pad(colin_brain)
-        vol = self.crop_or_pad(vol)
         colin_brain_loc = torch.nonzero(colin_brain.data, as_tuple=False)
 
         # random slice from axis
@@ -54,15 +52,24 @@ class UNetDataset(Dataset):
 
         colin_brain = colin_brain.data
         if random_axis == 1:
-            vol_slice = vol[:, random_slice_int, :, :]
+            vol_slice = vol.dataobj[random_slice_int, :, :, :]
             colin_brain_sl = colin_brain[:, random_slice_int, :, :]
-        elif random_axis == 2:
-            vol_slice = vol[:, :, random_slice_int, :]
+        elif random_axis == 1:
+            vol_slice = vol.dataobj[:, random_slice_int, :, :]
             colin_brain_sl = colin_brain[:, :, random_slice_int, :]
         else:
-            vol_slice = vol[:, :, :, random_slice_int]
+            vol_slice = vol.dataobj[:, :, random_slice_int, :]
             colin_brain_sl = colin_brain[:, :, :, random_slice_int]
+        
 
+        si, sj, sc = vol_slice.shape
+        vol_slice_4d = vol_slice.copy().reshape(1,si, sj,1)
+        col_slice_4d = colin_brain_sl.reshape(1, si, sj,1)
+        vol_slice_4d = torch.from_numpy(vol_slice_4d.copy())
+
+        colin_brain_sl = self.crop_or_pad(col_slice_4d)
+        vol_slice = self.crop_or_pad(vol_slice_4d)
+        
         return vol_slice, colin_brain_sl
     
 
@@ -110,16 +117,17 @@ if __name__ == "__main__":
     data = UNetDataset(transform_dir)
     print(len(data))
 
+    # X, y = data[1]
+    # print(X.shape, y.shape)
+
     X, y = data[18]
     
     print(X.shape, y.shape)
-    X = torch.squeeze(X)
-    y = torch.squeeze(y)
+    X = np.squeeze(X)
+    y = np.squeeze(y)
     f, ax = plt.subplots(1,2) 
     ax[0].imshow(X)
     ax[1].imshow(y)
     print(X.shape, y.shape)
     plt.show()
-
-
 

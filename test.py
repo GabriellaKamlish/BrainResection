@@ -11,5 +11,9 @@ Brain_seg = ['IXI002-Guys-0828-T1_NeuroMorph_Parcellation_gif_brain_seg.nii.gz',
 
 # IXIdata.generate_resection('/Users/gabriellakamlish/BrainResection/IXI/brain_segs/IXI002-Guys-0828-T1_NeuroMorph_Parcellation_gif_brain_seg.nii.gz', '/Users/gabriellakamlish/BrainResection/IXI/T1/IXI002-Guys-0828-T1.nii.gz')
 
+brainseg = Brain_seg[20]
+T1_Samp = T1[20]
+IXIdata.generate_resection('/Users/gabriellakamlish/BrainResection/IXI/brain_segs/{}'.format(brainseg), '/Users/gabriellakamlish/BrainResection/IXI/T1/{}'.format(T1_Samp))
+
 print(len(T1))
 print(len(Brain_seg))
