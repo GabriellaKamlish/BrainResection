@@ -51,12 +51,20 @@ if __name__ == "__main__":
     transform_path = '/Users/gabriellakamlish/BrainResection/IXI/to_mni'
     IXI_transform = IXITransform(T1_path,transform_path)
     print(len(IXI_transform))
-    print(IXI_transform[6])
-    print(IXI_transform.T1_names[6])
- 
 
-    for i in range(len(IXI_transform)):
-        x = IXI_transform[i].data
+    colin_brain = IXI_transform.colin.brain
+    # # convert to float
+
+
+    # for i in range(len(IXI_transform)):
+    #     x = IXI_transform[i]
+    #     subject = tio.Subject(im=x, brain=colin_brain)
+    #     norm = tio.ZNormalization(masking_method='brain')
+    #     normed = norm(subject)
+    #     print(i)
+    #     print(normed.im)
+    #     x = normed.im.data
+
     #     name = IXI_transform.T1_names[i]
     #     name_ok = name[:-7]
     #     name_ok = name_ok + '-MNI-space.nii.gz'
@@ -65,10 +73,7 @@ if __name__ == "__main__":
 
     #     x = x.numpy()
     #     ni_img = nib.Nifti1Image(x, np.eye(4))
-
     #     nib.save(ni_img, path)
-
-
 
 
 

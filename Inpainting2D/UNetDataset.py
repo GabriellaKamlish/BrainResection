@@ -18,7 +18,11 @@ class UNetDataset(Dataset):
         self.MNI_vol_names.sort()    
         self.colin = tio.datasets.Colin27(version=1998) 
         self.crop_or_pad = tio.CropOrPad(
-            (217,217,1)
+            (217,217,1),
+            padding_mode = 'minimum'
+        )
+        self.Rescale = tio.RescaleIntensity(
+            (0,1)
         )
 
     def __len__(self):
@@ -37,16 +41,12 @@ class UNetDataset(Dataset):
         label = slice_of_vol.reshape(c, i,j)
         mask = self.create_mask(label.clone().detach(), col_slice)
 
-        # normalise
-        X = mask//255
-        y = label//255
-        return X, y
-    
+        return mask, label
+
     def get_random_slice(self, vol):
         random_axis = random.randint(1,3)
         colin_brain = self.colin.brain
         colin_brain_loc = torch.nonzero(colin_brain.data, as_tuple=False)
-
         # random slice from axis
         random_slice_int = random.choice(colin_brain_loc[:,random_axis])
 
@@ -54,7 +54,7 @@ class UNetDataset(Dataset):
         if random_axis == 1:
             vol_slice = vol.dataobj[random_slice_int, :, :, :]
             colin_brain_sl = colin_brain[:, random_slice_int, :, :]
-        elif random_axis == 1:
+        elif random_axis == 2:
             vol_slice = vol.dataobj[:, random_slice_int, :, :]
             colin_brain_sl = colin_brain[:, :, random_slice_int, :]
         else:
@@ -67,8 +67,10 @@ class UNetDataset(Dataset):
         col_slice_4d = colin_brain_sl.reshape(1, si, sj,1)
         vol_slice_4d = torch.from_numpy(vol_slice_4d.copy())
 
-        colin_brain_sl = self.crop_or_pad(col_slice_4d)
-        vol_slice = self.crop_or_pad(vol_slice_4d)
+        vol_rescale = self.Rescale(vol_slice_4d)
+        col_rescale = self.Rescale(col_slice_4d)
+        colin_brain_sl = self.crop_or_pad(col_rescale)
+        vol_slice = self.crop_or_pad(vol_rescale)
         
         return vol_slice, colin_brain_sl
     
@@ -117,11 +119,15 @@ if __name__ == "__main__":
     data = UNetDataset(transform_dir)
     print(len(data))
 
-    # X, y = data[1]
-    # print(X.shape, y.shape)
 
-    X, y = data[18]
+    x = random.randint(0,566)
+    # print(x)
+    # X, y = data[x]
     
+    # x = 25
+    X, y = data[x]
+
+    print(X.dtype, y.dtype)
     print(X.shape, y.shape)
     X = np.squeeze(X)
     y = np.squeeze(y)
